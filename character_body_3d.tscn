@@ -1,0 +1,45 @@
+[gd_scene load_steps=5 format=3 uid="uid://d4hiynoveq5ha"]
+
+[ext_resource type="Script" path="res://Scripts/CharacterBody3D.gd" id="1_nfrwb"]
+[ext_resource type="PackedScene" uid="uid://cc7pvxgipjk3j" path="res://Prefabs/pulse_pistols.tscn" id="2_lphf5"]
+[ext_resource type="Texture2D" uid="uid://ccolsin6ruru3" path="res://Pngs/crosshair4.png" id="3_3e5n8"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_g3xdd"]
+
+[node name="CharacterBody3D" type="CharacterBody3D"]
+script = ExtResource("1_nfrwb")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_g3xdd")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.698866, 0)
+
+[node name="PulsePistols" parent="Camera3D" instance=ExtResource("2_lphf5")]
+transform = Transform3D(0.227118, 0, 0, 0, 0.227118, 0, 0, 0, 0.227118, 0.542933, -0.382245, -0.82529)
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TextureRect" type="TextureRect" parent="Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -15.0
+offset_top = -15.0
+offset_right = 15.0
+offset_bottom = 15.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_3e5n8")
+expand_mode = 1
+stretch_mode = 3
