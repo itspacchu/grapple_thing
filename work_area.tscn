@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://d1sf5rx1v5h7k"]
+[gd_scene load_steps=14 format=3 uid="uid://d1sf5rx1v5h7k"]
 
 [ext_resource type="PackedScene" uid="uid://bi6f6w35qva6s" path="res://grapplepoints.tscn" id="1_7qh7i"]
 [ext_resource type="Texture2D" uid="uid://d0gjqy8ijvk7i" path="res://addons/kenney_prototype_textures/dark/texture_01.png" id="1_ignwt"]
@@ -13,6 +13,13 @@ uv1_scale = Vector3(10, 10, 10)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_vcxar"]
 size = Vector3(20, 1, 20)
+
+[sub_resource type="BoxMesh" id="BoxMesh_d5mrm"]
+size = Vector3(40, 1, 20)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ysw15"]
+albedo_texture = ExtResource("1_ignwt")
+uv1_scale = Vector3(20, 10, 10)
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_njdev"]
 
@@ -31,6 +38,7 @@ ssao_enabled = true
 glow_enabled = true
 fog_light_energy = 1.5
 fog_sun_scatter = 0.64
+volumetric_fog_anisotropy = -0.07
 volumetric_fog_detail_spread = 6.0
 volumetric_fog_ambient_inject = 1.15
 
@@ -41,7 +49,7 @@ volumetric_fog_ambient_inject = 1.15
 [node name="Node3D" type="Node3D"]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.593152, -0.612086, -0.522993, 0, -0.649607, 0.76027, -0.805091, -0.450956, -0.385316, -7.36219, 6.69712, -12.3868)
+transform = Transform3D(0.587471, -0.695914, -0.413016, 0.659915, 0.11657, 0.742243, -0.468391, -0.708601, 0.527725, -7.36219, 6.69712, -12.3868)
 shadow_enabled = true
 
 [node name="Map" type="Node3D" parent="."]
@@ -169,6 +177,16 @@ mesh = SubResource("BoxMesh_d1udd")
 material = SubResource("StandardMaterial3D_pphj7")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Map/Planes/StaticBody3D10"]
+shape = SubResource("BoxShape3D_vcxar")
+
+[node name="StaticBody3D13" type="StaticBody3D" parent="Map/Planes"]
+transform = Transform3D(0.0424337, 0.999099, 4.3672e-08, 0, -4.37114e-08, 1, 0.999099, -0.0424337, -1.85484e-09, -13.8196, 4.16421, -10.4564)
+
+[node name="CSGMesh3D" type="CSGMesh3D" parent="Map/Planes/StaticBody3D13"]
+mesh = SubResource("BoxMesh_d5mrm")
+material = SubResource("StandardMaterial3D_ysw15")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Map/Planes/StaticBody3D13"]
 shape = SubResource("BoxShape3D_vcxar")
 
 [node name="StaticBody3D11" type="StaticBody3D" parent="Map/Planes"]

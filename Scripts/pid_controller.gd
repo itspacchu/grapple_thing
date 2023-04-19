@@ -13,6 +13,8 @@ func _init(p:float,i:float,d:float)->void:
 	_i = i
 	_d = d
 	
+func _reset_integral():
+	_error_integral = Vector3.ZERO
 
 func update( error: Vector3,delta: float )->Vector3:
 	_error_integral += error*delta

@@ -13,9 +13,11 @@ albedo_texture = ExtResource("1_i3whu")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.23346, 8.37642, -2.34442)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(3.13842, 0, 0, 0, 3.13842, 0, 0, 0, 3.13842, 0, 0, 0)
 shape = SubResource("BoxShape3D_ftf8y")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(2.22502, 0, 0, 0, 2.22502, 0, 0, 0, 2.22502, 0, 0, 0)
 material_override = SubResource("StandardMaterial3D_75c2o")
 mesh = SubResource("BoxMesh_qexq1")
 skeleton = NodePath("../..")

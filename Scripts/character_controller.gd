@@ -1,15 +1,15 @@
 extends RigidBody3D
 
-var _pid := PID.new(4.0,0.5,1.0)
+var _pid := PID.new(4.0,0.5,0.0)
 const MAX_SPEED:float = 15.0
 const JUMP_VELOCITY:float = 4.5
 var SENS:float = 0.001
-var MAX_GRAPPLE:float = 1000
+var MAX_GRAPPLE:float = 50
 var GRAPPLE_FORCE:float = 0.1
 @onready var camera = $Head/Camera3D
 var decal = null
 var grapple_point = null
-
+var raydist:float = 0.0
 
 var _velo_buff:float = 0;
 
@@ -57,13 +57,21 @@ func _process(delta):
 	if(Input.is_key_pressed(KEY_R)):
 		get_tree().reload_current_scene()
 	camera.fov = clamp(remap(linear_velocity.length(),0,50,75,105),75,105)
-	if(linear_velocity.length() > 20):
-		$Control/TextureRect/GPUParticles2D.emitting = true
+	if(linear_velocity.length() > 15):
+		$Control/crosshair/GPUParticles2D.emitting = true
 	else:
-		$Control/TextureRect/GPUParticles2D.emitting = false
+		$Control/crosshair/GPUParticles2D.emitting = false
+		
+	if(Input.is_action_just_pressed("spray")):
+		var raypoint = get_collision_point()
+		handle_spray(raypoint)
+	
+	if Input.is_key_pressed(KEY_F):
+		_pid._reset_integral()
 
 func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("ui_accept"):
+		_pid._reset_integral()
 		apply_central_impulse(JUMP_VELOCITY * mass * Vector3(0, 1, 0))
 	var input_dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var direction = ($Head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
@@ -72,29 +80,43 @@ func _physics_process(delta: float) -> void:
 	velocity_error.y = 0.0
 	var correction_impulse = mass * _pid.update(velocity_error, delta) * 1e-2
 	correction_impulse = correction_impulse.normalized() * min(correction_impulse.length(), 1.0)
+	
 	if(Input.is_action_just_pressed("sprint")):
-		correction_impulse *= 3
+		correction_impulse *= 10
 	apply_central_impulse(correction_impulse)
 	
 	var raycast = get_collision_point()
+
+	if(raycast):
+		raydist = (raycast["position"]-position).length()
+		if(raydist < MAX_GRAPPLE):
+			$Control/crosshair/distanceLabel.text = "%d m" % raydist
+			$Control/crosshair.self_modulate = Color.WHITE
+		else:
+			$Control/crosshair/distanceLabel.text = "---" % raydist
+			$Control/crosshair.self_modulate = Color.RED
+	else:
+		raydist = 0
+	
 	if(Input.is_action_just_pressed("fire")):
-		if(raycast):
-			var distance:float = (raycast["position"] - position).length()
-			if(distance < MAX_GRAPPLE):
-				grapple_point = raycast
+		if(raydist > MAX_GRAPPLE):
+			grapple_point = null
+			
+		else:
+			grapple_point = raycast
+			
+
 	if Input.is_action_pressed("fire"):
+		_pid._reset_integral()
 		if(grapple_point):
 			var force = (grapple_point["position"] - position).normalized()
 			var distance = clamp((grapple_point["position"] - position).length(),0,MAX_GRAPPLE)
 			apply_central_impulse(GRAPPLE_FORCE*distance*force)
 			$Head/Camera3D/CamAttach/PulsePistols.look_at(grapple_point["position"])
-			$Head/Camera3D/CamAttach/PulsePistols/Armature001/Skeleton3D.set_bone_pose_position(1,Vector3.UP*distance*1.55)
+			$Head/Camera3D/CamAttach/PulsePistols/Armature001/Skeleton3D.set_bone_pose_position(1,Vector3.UP*distance*2)
 	else:
 		$Head/Camera3D/CamAttach/PulsePistols/Armature001/Skeleton3D.set_bone_pose_position(1,Vector3.UP*(-1))
 		$Head/Camera3D/CamAttach/PulsePistols.rotation_degrees = lerp($Head/Camera3D/CamAttach/PulsePistols.rotation_degrees,Vector3.ZERO,delta*10)	
-	
-	if(Input.is_action_just_pressed("spray")):
-		var raypoint = get_collision_point()
-		handle_spray(raypoint)
+
 
 
