@@ -11,8 +11,6 @@ var decal = null
 var grapple_point = null
 var raydist:float = 0.0
 
-var _velo_buff:float = 0;
-
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -33,25 +31,26 @@ func get_collision_point():
 	ray_query.to = to
 	ray_query.collide_with_areas = true
 	var returnable:= space.intersect_ray(ray_query)
-	if(returnable):
-		$gpoint.global_position = returnable["position"]
 	return returnable
 
 func handle_spray(raypoint):
 	if(raypoint):
+		$soundeffects.play(0.0)
 		if(decal == null):
 			decal = Decal.new()
-			decal.texture_albedo = load("res://Pngs/mercy.png")
-			decal.size.y = 0.01
+			decal.texture_albedo = load("res://Pngs/wake.png")
+			decal.size.y = 0.1
 			get_parent().add_child(decal)
-			print(raypoint)
+			decal.global_position = raypoint["position"]
 		else:
-			decal.texture_albedo = load("res://Pngs/mercy.png")
-			decal.position = raypoint["position"]
+			decal.texture_albedo = load("res://Pngs/wake.png")
+			decal.global_position = raypoint["position"]
 			var hitnormal = raypoint["normal"]
-			#if hitnormal != Vector3.UP:
-			decal.look_at(decal.position+Vector3.UP, hitnormal)
-			#decal.rotate(raypoint["normal"],PI/2*raypoint["normal"].length())
+			#decal.look_at(camera.global_position,Vector3.UP)
+			if hitnormal != Vector3.UP:
+				decal.look_at(decal.position + hitnormal, Vector3.UP)
+				# then look "up" from there so the decal projects "down"
+				decal.transform = decal.transform.rotated_local(Vector3.RIGHT, PI/2.0)
 
 func _process(delta):
 	if(Input.is_key_pressed(KEY_R)):
@@ -59,6 +58,7 @@ func _process(delta):
 	camera.fov = clamp(remap(linear_velocity.length(),0,50,75,105),75,105)
 	if(linear_velocity.length() > 15):
 		$Control/crosshair/GPUParticles2D.emitting = true
+		$Control/crosshair/GPUParticles2D.speed_scale = remap(linear_velocity.length(),10,30,2.5,6)
 	else:
 		$Control/crosshair/GPUParticles2D.emitting = false
 		
@@ -66,13 +66,26 @@ func _process(delta):
 		var raypoint = get_collision_point()
 		handle_spray(raypoint)
 	
+	if(Input.is_action_pressed("fire")):		
+		$Head/Camera3D/CamAttach/MeshInstance3D2/swordimator.play("Swhing")
+	else:
+		$Head/Camera3D/CamAttach/MeshInstance3D2/swordimator.play("RESET")
+
+	
 	if Input.is_key_pressed(KEY_F):
+		print(get_contact_count())
+		print(get_collision_point())
 		_pid._reset_integral()
 
 func _physics_process(delta: float) -> void:
-	if Input.is_action_just_pressed("ui_accept"):
+	if(Input.is_action_pressed("ui_accept") and get_contact_count() and get_collision_point()):
 		_pid._reset_integral()
-		apply_central_impulse(JUMP_VELOCITY * mass * Vector3(0, 1, 0))
+		var normal:Vector3 = get_collision_point()["normal"]
+		if(abs(normal.dot(Vector3(1,0,1))) > 0.5):
+			apply_central_impulse(0.065 * JUMP_VELOCITY * mass * (Vector3.UP))
+		elif(normal.y > 0):
+			apply_central_impulse(JUMP_VELOCITY * mass * Vector3.UP)
+			
 	var input_dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var direction = ($Head.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	var desired_velocity = MAX_SPEED * direction
@@ -80,6 +93,7 @@ func _physics_process(delta: float) -> void:
 	velocity_error.y = 0.0
 	var correction_impulse = mass * _pid.update(velocity_error, delta) * 1e-2
 	correction_impulse = correction_impulse.normalized() * min(correction_impulse.length(), 1.0)
+
 	
 	if(Input.is_action_just_pressed("sprint")):
 		correction_impulse *= 10
@@ -93,12 +107,11 @@ func _physics_process(delta: float) -> void:
 			$Control/crosshair/distanceLabel.text = "%d m" % raydist
 			$Control/crosshair.self_modulate = Color.WHITE
 		else:
-			$Control/crosshair/distanceLabel.text = "---" % raydist
 			$Control/crosshair.self_modulate = Color.RED
 	else:
 		raydist = 0
 	
-	if(Input.is_action_just_pressed("fire")):
+	if(Input.is_action_just_pressed("grapple")):
 		if(raydist > MAX_GRAPPLE):
 			grapple_point = null
 			
@@ -106,17 +119,15 @@ func _physics_process(delta: float) -> void:
 			grapple_point = raycast
 			
 
-	if Input.is_action_pressed("fire"):
+	if Input.is_action_pressed("grapple"):
 		_pid._reset_integral()
 		if(grapple_point):
 			var force = (grapple_point["position"] - position).normalized()
 			var distance = clamp((grapple_point["position"] - position).length(),0,MAX_GRAPPLE)
 			apply_central_impulse(GRAPPLE_FORCE*distance*force)
 			$Head/Camera3D/CamAttach/PulsePistols.look_at(grapple_point["position"])
-			$Head/Camera3D/CamAttach/PulsePistols/Armature001/Skeleton3D.set_bone_pose_position(1,Vector3.UP*distance*2)
+			$Head/Camera3D/CamAttach/PulsePistols/Armature001/Skeleton3D.set_bone_pose_position(1,lerp($Head/Camera3D/CamAttach/PulsePistols/Armature001/Skeleton3D.get_bone_pose_position(1),Vector3.UP*distance*2,delta*2))
 	else:
 		$Head/Camera3D/CamAttach/PulsePistols/Armature001/Skeleton3D.set_bone_pose_position(1,Vector3.UP*(-1))
 		$Head/Camera3D/CamAttach/PulsePistols.rotation_degrees = lerp($Head/Camera3D/CamAttach/PulsePistols.rotation_degrees,Vector3.ZERO,delta*10)	
-
-
 

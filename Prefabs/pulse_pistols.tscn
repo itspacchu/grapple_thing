@@ -1,9 +1,15 @@
-[gd_scene format=3 uid="uid://cc7pvxgipjk3j"]
+[gd_scene load_steps=2 format=3 uid="uid://cc7pvxgipjk3j"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gh8t0"]
+albedo_color = Color(0.00784314, 0.00784314, 0.00784314, 1)
+metallic = 0.46
 
 [node name="PulsePistols" type="CSGBox3D"]
 transform = Transform3D(0.227118, 0, 0, 0, 0.227118, 0, 0, 0, 0.227118, 0.542933, 0.316621, -0.82529)
 size = Vector3(0.519338, 1.65941, 1.05378)
+material = SubResource("StandardMaterial3D_gh8t0")
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.435346, -1.44191)
 size = Vector3(0.519338, 0.778257, 2.32062)
+material = SubResource("StandardMaterial3D_gh8t0")
