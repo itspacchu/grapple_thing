@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://cr3qrh21oqp2s"]
+
+[ext_resource type="Script" path="res://Scripts/messagehandler.gd" id="1_jtu2f"]
+
+[node name="Label" type="Label"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -155.5
+offset_top = 54.0
+offset_right = 155.5
+offset_bottom = 101.0
+grow_horizontal = 2
+text = "Uwu Message desho"
+script = ExtResource("1_jtu2f")
