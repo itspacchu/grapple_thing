@@ -1,11 +1,13 @@
-[gd_scene load_steps=48 format=3 uid="uid://cyfoetb082bgk"]
+[gd_scene load_steps=45 format=3 uid="uid://cyfoetb082bgk"]
 
 [ext_resource type="Script" path="res://Scripts/character_controller.gd" id="1_y27yl"]
+[ext_resource type="Script" path="res://Scripts/becomeImmortal.gd" id="2_ceosu"]
 [ext_resource type="PackedScene" uid="uid://cc7pvxgipjk3j" path="res://Prefabs/pulse_pistols.tscn" id="2_e6awt"]
 [ext_resource type="Script" path="res://CameraShakeY.gd" id="2_l14cu"]
 [ext_resource type="Texture2D" uid="uid://ccolsin6ruru3" path="res://Pngs/crosshair4.png" id="3_d3n0m"]
 [ext_resource type="Shader" uid="uid://duxgc36tycc4r" path="res://character.tres" id="4_kweed"]
 [ext_resource type="Script" path="res://Scripts/speed.gd" id="5_8gtd8"]
+[ext_resource type="Script" path="res://Scripts/Hider.gd" id="6_dqnms"]
 [ext_resource type="Texture2D" uid="uid://bdpsyy045745s" path="res://Pngs/jojo.png" id="6_j8nhg"]
 [ext_resource type="AudioStream" uid="uid://nb4f1y86reid" path="res://Audio/wind woosh loop.ogg" id="8_ysq70"]
 [ext_resource type="Script" path="res://Scripts/WindHandler.gd" id="9_6givs"]
@@ -15,8 +17,15 @@
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_f16s1"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_srfog"]
+radius = 0.866244
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_nrkik"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_q1xr5"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rltxi"]
+transparency = 1
+albedo_texture = ExtResource("6_j8nhg")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yifus"]
 
@@ -130,52 +139,9 @@ metallic = 1.0
 metallic_specular = 1.0
 roughness = 0.21
 
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_obs27"]
-animation = &"RESET"
-
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_dmss5"]
-animation = &"Swhing"
-
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_g6wnu"]
-animation = &"Swhwing2"
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_75lyi"]
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pucb8"]
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_s8xru"]
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_314wh"]
-xfade_time = 0.2
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_mbd73"]
-xfade_time = 1.0
-switch_mode = 1
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_2kaqm"]
-xfade_time = 1.0
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_anx80"]
-states/RESET/node = SubResource("AnimationNodeAnimation_obs27")
-states/RESET/position = Vector2(501, 54)
-states/Start/position = Vector2(262, 100)
-states/Swhing/node = SubResource("AnimationNodeAnimation_dmss5")
-states/Swhing/position = Vector2(482, 147)
-states/Swhwing2/node = SubResource("AnimationNodeAnimation_g6wnu")
-states/Swhwing2/position = Vector2(776, 110)
-transitions = ["Start", "Swhing", SubResource("AnimationNodeStateMachineTransition_75lyi"), "Start", "RESET", SubResource("AnimationNodeStateMachineTransition_pucb8"), "RESET", "Swhing", SubResource("AnimationNodeStateMachineTransition_s8xru"), "Swhing", "RESET", SubResource("AnimationNodeStateMachineTransition_314wh"), "Swhing", "Swhwing2", SubResource("AnimationNodeStateMachineTransition_mbd73"), "Swhwing2", "Swhing", SubResource("AnimationNodeStateMachineTransition_2kaqm")]
-graph_offset = Vector2(95, 21)
-
-[sub_resource type="AnimationNodeStateMachinePlayback" id="AnimationNodeStateMachinePlayback_g3166"]
-
 [sub_resource type="Animation" id="Animation_n3l28"]
-length = 0.001
+length = 2.0
+loop_mode = 1
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -183,22 +149,22 @@ tracks/0/path = NodePath(".:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
+"times": PackedFloat32Array(0, 0.748623, 2.00935),
+"transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Vector3(0.831427, -0.666379, -0.894682)]
+"values": [Vector3(0.86544, -0.543323, -0.894682), Vector3(0.86544, -0.543323, -0.894682), Vector3(0.86544, -0.543323, -0.894682)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
 tracks/1/path = NodePath(".:rotation")
-tracks/1/interp = 1
+tracks/1/interp = 2
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
+"times": PackedFloat32Array(0, 0.748623, 1.35343, 2.00935),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 0,
-"values": [Vector3(-0.425859, -0.00698273, -0.466002)]
+"values": [Vector3(0.567941, -0.0983278, -0.320588), Vector3(0.238249, -0.094573, -0.069631), Vector3(-0.0564798, -0.123998, -0.065549), Vector3(0.567941, -0.0983278, -0.320588)]
 }
 
 [sub_resource type="Animation" id="Animation_15qcc"]
@@ -211,10 +177,10 @@ tracks/0/path = NodePath(".:position")
 tracks/0/interp = 2
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.2, 0.4, 1),
+"times": PackedFloat32Array(0, 0.1, 0.8, 1),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 0,
-"values": [Vector3(0.831427, -0.666379, -0.894682), Vector3(0.521089, -0.666379, -0.894682), Vector3(0.651407, -0.666379, -1.29098), Vector3(0.831427, -0.666379, -0.894682)]
+"values": [Vector3(0.86544, -0.543323, -0.894682), Vector3(0.817653, -0.530114, -0.900021), Vector3(0.792501, -0.523162, -0.902831), Vector3(0.86544, -0.543323, -0.894682)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -223,10 +189,10 @@ tracks/1/path = NodePath(".:rotation")
 tracks/1/interp = 2
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.2, 0.4, 1),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.1, 0.3, 0.5, 0.6, 0.8, 1),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
 "update": 0,
-"values": [Vector3(-0.425859, -0.00698273, -0.466002), Vector3(-0.425859, 0.760561, -0.466002), Vector3(0.139362, -2.54883, -0.066688), Vector3(-0.425859, -0.00698273, -0.466002)]
+"values": [Vector3(0.567941, -0.0983278, -0.320588), Vector3(0.0380858, 0.138298, -0.267033), Vector3(0.110364, -2.33237, 0.339359), Vector3(0, 0, -1.45707), Vector3(-0.512166, -3.08547, 1.45665), Vector3(0, -2.556, 0), Vector3(0.567941, -0.0983278, -0.320588)]
 }
 
 [sub_resource type="Animation" id="Animation_frx47"]
@@ -264,6 +230,12 @@ _data = {
 "Swhwing2": SubResource("Animation_frx47")
 }
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_di720"]
+size = Vector3(0.624518, 1, 3.44233)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hhc1k"]
+size = Vector3(2.66539, 1, 1.62449)
+
 [sub_resource type="Curve" id="Curve_lmmm5"]
 max_value = 100.0
 _data = [Vector2(0, 0), 0.0, 2.89655, 0, 0, Vector2(1, 112.727), 260.4, 0.0, 0, 0]
@@ -300,13 +272,62 @@ turbulence_noise_strength = 0.35
 turbulence_noise_scale = 1.92
 attractor_interaction_enabled = false
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_q1xr5"]
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_5boim"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/sync = true
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/sync = true
+properties/2/path = NodePath("Head/Camera3D:rotation")
+properties/2/spawn = true
+properties/2/sync = true
+properties/3/path = NodePath("Head:rotation")
+properties/3/spawn = true
+properties/3/sync = true
+properties/4/path = NodePath("Head/Camera3D/CamAttach/MeshInstance3D2/swordimator:current_animation")
+properties/4/spawn = true
+properties/4/sync = true
+properties/5/path = NodePath("Head/Camera3D/CamAttach/AnimationPlayer:current_animation")
+properties/5/spawn = true
+properties/5/sync = true
+properties/6/path = NodePath("Head/Camera3D/CamAttach/PulsePistols/rope:scale")
+properties/6/spawn = true
+properties/6/sync = true
+properties/7/path = NodePath("Head/Camera3D/CamAttach/PulsePistols:rotation")
+properties/7/spawn = true
+properties/7/sync = true
+properties/8/path = NodePath("GPUParticles3D:emitting")
+properties/8/spawn = true
+properties/8/sync = true
+properties/9/path = NodePath(".:player_nick")
+properties/9/spawn = true
+properties/9/sync = true
+properties/10/path = NodePath("Label3D:text")
+properties/10/spawn = true
+properties/10/sync = true
+properties/11/path = NodePath(".:health")
+properties/11/spawn = true
+properties/11/sync = true
+properties/12/path = NodePath(".:visible")
+properties/12/spawn = true
+properties/12/sync = true
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rltxi"]
-transparency = 1
-albedo_texture = ExtResource("6_j8nhg")
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oghfr"]
+albedo_color = Color(1, 0, 0, 1)
 
-[node name="Character" type="RigidBody3D"]
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_mc8cw"]
+emission_shape = 1
+emission_sphere_radius = 1.93
+direction = Vector3(1, 1, 0)
+spread = 180.0
+initial_velocity_max = 10.0
+color = Color(0.909804, 0, 0.376471, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_pc6f8"]
+size = Vector3(0.1, 0.1, 0.1)
+
+[node name="Character" type="RigidBody3D" groups=["Player"]]
 collision_layer = 129
 collision_mask = 129
 input_ray_pickable = false
@@ -322,6 +343,7 @@ script = ExtResource("1_y27yl")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_srfog")
+script = ExtResource("2_ceosu")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("CapsuleMesh_nrkik")
@@ -329,10 +351,15 @@ mesh = SubResource("CapsuleMesh_nrkik")
 [node name="Head" type="Node3D" parent="."]
 
 [node name="Camera3D" type="Camera3D" parent="Head"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.643896, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.643896, 0.112988)
 
 [node name="CamAttach" type="Node3D" parent="Head/Camera3D"]
 script = ExtResource("2_l14cu")
+
+[node name="CSGMesh3D" type="CSGMesh3D" parent="Head/Camera3D/CamAttach"]
+transform = Transform3D(-0.36388, 0, -3.18114e-08, 3.18114e-08, -1.59057e-08, -0.36388, -1.39052e-15, -0.36388, 1.59057e-08, 0, 0.009848, -0.547857)
+mesh = SubResource("PlaneMesh_q1xr5")
+material = SubResource("StandardMaterial3D_rltxi")
 
 [node name="PulsePistols" parent="Head/Camera3D/CamAttach" instance=ExtResource("2_e6awt")]
 transform = Transform3D(0.227118, 0, 0, 0, 0.227118, 0, 0, 0, 0.227118, -0.882178, -0.450617, -0.81133)
@@ -340,29 +367,15 @@ transform = Transform3D(0.227118, 0, 0, 0, 0.227118, 0, 0, 0, 0.227118, -0.88217
 [node name="Node3D" type="Node3D" parent="Head/Camera3D/CamAttach/PulsePistols"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.420861, -2.59759)
 
-[node name="Armature001" type="Node3D" parent="Head/Camera3D/CamAttach/PulsePistols"]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.432647, -2.60458)
+[node name="rope" type="Node3D" parent="Head/Camera3D/CamAttach/PulsePistols"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.48449, -2.60348)
 
-[node name="Skeleton3D" type="Skeleton3D" parent="Head/Camera3D/CamAttach/PulsePistols/Armature001"]
-transform = Transform3D(1, 0, 0, 0, 1, -3.55271e-15, 0, 3.55271e-15, 1, 0, 0, 0)
-bones/0/name = "Bone"
-bones/0/parent = -1
-bones/0/rest = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
-bones/0/enabled = true
-bones/0/position = Vector3(0, 0, 0)
-bones/0/rotation = Quaternion(0, 0, 0, 1)
-bones/0/scale = Vector3(1, 1, 1)
-bones/1/name = "Bone.001"
-bones/1/parent = -1
-bones/1/rest = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000474975, -1.04553, 0.000474975)
-bones/1/enabled = true
-bones/1/position = Vector3(0.000474975, 1.00048, 0.000474975)
-bones/1/rotation = Quaternion(0, 0, 0, 1)
-bones/1/scale = Vector3(1, 1, 1)
-
-[node name="Cylinder" type="MeshInstance3D" parent="Head/Camera3D/CamAttach/PulsePistols/Armature001/Skeleton3D"]
+[node name="rope" type="MeshInstance3D" parent="Head/Camera3D/CamAttach/PulsePistols/rope"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, -0.998)
 mesh = SubResource("ArrayMesh_32x7m")
 skin = SubResource("Skin_ju0e0")
+skeleton = NodePath("")
 surface_material_override/0 = SubResource("ShaderMaterial_vtg2g")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Head/Camera3D/CamAttach"]
@@ -371,27 +384,42 @@ libraries = {
 }
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="Head/Camera3D/CamAttach"]
-transform = Transform3D(0.251104, 0.0266788, -0.000577049, -0.115182, 0.048033, 0.0374871, 0.0540034, -0.0216029, 0.0826381, 0.831427, -0.666379, -0.894682)
+transform = Transform3D(0.270541, 0.0155561, -0.00750986, -0.0747785, 0.0472348, -0.0488115, -0.0212576, 0.0318198, 0.0761295, 0.86544, -0.543323, -0.894682)
 mesh = SubResource("BoxMesh_j62x0")
 skeleton = NodePath("../PulsePistols")
 surface_material_override/0 = SubResource("StandardMaterial3D_54dto")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Head/Camera3D/CamAttach/MeshInstance3D2"]
-transform = Transform3D(3.72215, 0, 0, 0, 0.339109, 0, 0, 0, 1.6244, -1.93467, 0, 0)
+transform = Transform3D(3.72215, 2.32831e-09, 7.45058e-09, 5.96046e-07, 0.339109, 5.96046e-08, -2.38419e-07, -7.45058e-09, 1.6244, -1.93467, -2.86102e-06, -9.53674e-07)
 mesh = SubResource("BoxMesh_j62x0")
 skeleton = NodePath("../../PulsePistols")
 surface_material_override/0 = SubResource("StandardMaterial3D_1dmf8")
 
-[node name="AnimationTree" type="AnimationTree" parent="Head/Camera3D/CamAttach/MeshInstance3D2"]
-tree_root = SubResource("AnimationNodeStateMachine_anx80")
-anim_player = NodePath("../swordimator")
-parameters/playback = SubResource("AnimationNodeStateMachinePlayback_g3166")
-
 [node name="swordimator" type="AnimationPlayer" parent="Head/Camera3D/CamAttach/MeshInstance3D2"]
-speed_scale = 3.0
+unique_name_in_owner = true
 libraries = {
 "": SubResource("AnimationLibrary_yhqry")
 }
+
+[node name="lethalArea" type="Area3D" parent="Head/Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.643896, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Head/Camera3D/lethalArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.461461, -2.86022)
+shape = SubResource("BoxShape3D_di720")
+
+[node name="nonlethal" type="Area3D" parent="Head/Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.30074e-05, -0.643896, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Head/Camera3D/nonlethal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.461461, -1.53204)
+shape = SubResource("BoxShape3D_hhc1k")
+
+[node name="RayCast3D" type="RayCast3D" parent="Head/Camera3D"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 5.96046e-08, -1.32188)
+target_position = Vector3(0, -50, 0)
+debug_shape_custom_color = Color(1, 0, 1, 1)
+debug_shape_thickness = 3
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
@@ -401,6 +429,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+script = ExtResource("6_dqnms")
 
 [node name="crosshair" type="TextureRect" parent="Control"]
 layout_mode = 1
@@ -448,28 +477,78 @@ layout_mode = 0
 offset_right = 308.0
 offset_bottom = 40.0
 scale = Vector2(1.10872, 1.07401)
-text = "Alpha build v0.0.4"
+text = "Alpha build v0.0.6 ( multiplayer )"
 
 [node name="RichTextLabel2" type="RichTextLabel" parent="Control"]
 layout_mode = 1
-anchors_preset = 2
+anchors_preset = 7
+anchor_left = 0.5
 anchor_top = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
-offset_top = -40.0
-offset_right = 114.0
+offset_left = -62.0
+offset_top = -87.0
+offset_right = 52.0
+offset_bottom = -47.0
+grow_horizontal = 2
 grow_vertical = 0
 scale = Vector2(1.10872, 1.07401)
 text = "MPS"
 script = ExtResource("5_8gtd8")
-metadata/_edit_use_anchors_ = true
+
+[node name="HSlider" type="HSlider" parent="Control"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 67.0
+offset_top = -76.0
+offset_right = 241.0
+offset_bottom = -45.0
+grow_vertical = 0
+max_value = 50.0
+value = 50.0
+editable = false
+scrollable = false
+
+[node name="grapple" type="Button" parent="Control"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -208.0
+offset_top = -85.0
+offset_right = -158.0
+offset_bottom = -35.0
+grow_horizontal = 0
+grow_vertical = 0
+toggle_mode = true
+button_mask = 0
+text = "G"
+
+[node name="slash" type="Button" parent="Control"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -152.0
+offset_top = -85.0
+offset_right = -102.0
+offset_bottom = -35.0
+grow_horizontal = 0
+grow_vertical = 0
+toggle_mode = true
+button_mask = 0
+text = "S"
 
 [node name="rope" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.99841)
-
-[node name="CSGMesh3D" type="CSGMesh3D" parent="."]
-transform = Transform3D(-0.36388, 0, -3.18114e-08, 3.18114e-08, -1.59057e-08, -0.36388, -1.39052e-15, -0.36388, 1.59057e-08, 0, 0.653744, -0.547857)
-mesh = SubResource("PlaneMesh_q1xr5")
-material = SubResource("StandardMaterial3D_rltxi")
 
 [node name="WindHandler" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("8_ysq70")
@@ -483,4 +562,69 @@ stream = ExtResource("10_882f2")
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("11_lj2va")
 
-[connection signal="animation_finished" from="Head/Camera3D/CamAttach/MeshInstance3D2/swordimator" to="." method="_on_swordimator_animation_finished"]
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_5boim")
+
+[node name="GrappleCooldown" type="Timer" parent="."]
+wait_time = 3.0
+
+[node name="AttackCoolDown" type="Timer" parent="."]
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+material_override = SubResource("StandardMaterial3D_oghfr")
+emitting = false
+amount = 10
+one_shot = true
+explosiveness = 1.0
+fixed_fps = 5
+visibility_aabb = AABB(-0.216871, -0.675455, -0.38985, 0.433742, 1.35091, 0.779701)
+process_material = SubResource("ParticleProcessMaterial_mc8cw")
+draw_pass_1 = SubResource("BoxMesh_pc6f8")
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.38384, 0)
+billboard = 1
+
+[node name="HP" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.18378, 0)
+visible = false
+billboard = 1
+text = "0 HP"
+
+[node name="DeadCam" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="DeadCam"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="DeadCam/Panel"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -42.0
+offset_top = 22.0
+offset_right = 42.0
+offset_bottom = 83.0
+grow_horizontal = 2
+text = "YOU DIED
+
+RESPAWNING in 3"
+
+[node name="Respawning" type="Timer" parent="DeadCam"]
+wait_time = 3.0
+
+[connection signal="timeout" from="GrappleCooldown" to="." method="_on_grapple_cooldown_timeout"]
+[connection signal="timeout" from="AttackCoolDown" to="." method="_on_attack_cool_down_timeout"]
+[connection signal="timeout" from="DeadCam/Respawning" to="." method="_on_respawning_timeout"]

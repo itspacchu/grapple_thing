@@ -1,20 +1,41 @@
 extends RigidBody3D
 
 var _pid := PID.new(4.0,0.5,0.0)
+
 const MAX_SPEED:float = 15.0
 const JUMP_VELOCITY:float = 4.5
 var SENS:float = 0.001
-var MAX_GRAPPLE:float = 50
-var GRAPPLE_FORCE:float = 0.1
+const MAX_GRAPPLE:float = 50
+const MAX_COOLDOWN = 1.5
+const GRAPPLE_FORCE:float = 0.1
+const SWORD_DAMAGE:float = 25
+const ATTACK_COOLDOWN = 1.5
+
 @onready var camera = $Head/Camera3D
+@export var grapple_point:Dictionary = {}
 var decal = null
-var grapple_point = null
 var raydist:float = 0.0
+var can_grapple:bool = true
+var current_cooldown = 0
+var can_attack:bool = true
+@export var health = 50
+@export var player_nick:String = ""
 
 func _ready():
+	if(not is_multiplayer_authority()): return
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	camera.current = true
+	current_cooldown = MAX_COOLDOWN
+	%swordimator.play("RESET")
+	$GPUParticles3D.emitting = false
+	$Label3D.hide()
+	$HP.hide()
+
+func _enter_tree():
+	set_multiplayer_authority(str(name).to_int())
 
 func _unhandled_input(event):
+	if(not is_multiplayer_authority()): return
 	if event is InputEventMouseMotion:
 		$Head.rotate_y(-event.relative.x * SENS)
 		camera.rotate_x(-event.relative.y * SENS)
@@ -29,8 +50,8 @@ func get_collision_point():
 	var ray_query = PhysicsRayQueryParameters3D.new()
 	ray_query.from = from
 	ray_query.to = to
-	ray_query.collide_with_areas = true
-	var returnable:= space.intersect_ray(ray_query)
+	ray_query.collide_with_areas = false
+	var returnable:= space.intersect_ray(ray_query)			
 	return returnable
 
 func handle_spray(raypoint):
@@ -49,13 +70,22 @@ func handle_spray(raypoint):
 			#decal.look_at(camera.global_position,Vector3.UP)
 			if hitnormal != Vector3.UP:
 				decal.look_at(decal.position + hitnormal, Vector3.UP)
-				# then look "up" from there so the decal projects "down"
 				decal.transform = decal.transform.rotated_local(Vector3.RIGHT, PI/2.0)
 
+func reset_player():
+	_pid._reset_integral()
+	position = Vector3.ZERO
+	rotation = Vector3.ZERO
+	linear_velocity = Vector3.ZERO
+	$Head.rotation = Vector3.ZERO
+	camera.rotation = Vector3.ZERO
+	$GPUParticles3D.emitting = false
+
 func _process(delta):
-	if(Input.is_key_pressed(KEY_R)):
-		get_tree().reload_current_scene()
+	$Label3D.text = player_nick + "\n" + str(health)
+	if(not is_multiplayer_authority()): return		
 	camera.fov = clamp(remap(linear_velocity.length(),0,50,75,105),75,105)
+	$Control/HSlider.value = health
 	if(linear_velocity.length() > 15):
 		$Control/crosshair/GPUParticles2D.emitting = true
 		$Control/crosshair/GPUParticles2D.speed_scale = remap(linear_velocity.length(),10,30,2.5,6)
@@ -66,18 +96,45 @@ func _process(delta):
 		var raypoint = get_collision_point()
 		handle_spray(raypoint)
 	
-	if(Input.is_action_pressed("fire")):		
-		$Head/Camera3D/CamAttach/MeshInstance3D2/swordimator.play("Swhing")
+	if(Input.is_action_just_pressed("fire") and can_attack):
+		can_attack = false
+		%grapple.set_pressed_no_signal(false)	
+		%swordimator.play("Swhing")
+		%swordimator.speed_scale = 1/ATTACK_COOLDOWN
+		$AttackCoolDown.start(ATTACK_COOLDOWN)
+		%slash.set_pressed_no_signal(true)
+		%slash.disabled = true	
+		var hit_things = $Head/Camera3D/lethalArea.get_overlapping_bodies() + $Head/Camera3D/nonlethal.get_overlapping_bodies()
+		hit_things.erase(self)	
+		for players_hit in hit_things:
+			if(players_hit.is_in_group("Player")):
+				if(players_hit.health == 25):
+					var msg = preload("res://label.tscn").instantiate()
+					msg.writeText("You Killed %s" % players_hit.player_nick)
+					add_child(msg)
+				players_hit.take_damage.rpc_id(players_hit.get_multiplayer_authority())
+				
+				
+		
+	if($AttackCoolDown.is_stopped()):
+		%slash.text = "S"
 	else:
-		$Head/Camera3D/CamAttach/MeshInstance3D2/swordimator.play("RESET")
-
+		if($AttackCoolDown.time_left == ATTACK_COOLDOWN - 1):
+			%swordimator.play("RESET")
+		%slash.text = "%d" % $AttackCoolDown.time_left
 	
-	if Input.is_key_pressed(KEY_F):
-		print(get_contact_count())
-		print(get_collision_point())
-		_pid._reset_integral()
+	if($GrappleCooldown.is_stopped()):
+		%grapple.text = "G"
+	else:
+		%grapple.text = "%d" % $GrappleCooldown.time_left
+		
+	if(Input.is_key_pressed(KEY_R)):
+		reset_player()
+	
+		
 
 func _physics_process(delta: float) -> void:
+	if(not is_multiplayer_authority()): return
 	if(Input.is_action_pressed("ui_accept") and get_contact_count() and get_collision_point()):
 		_pid._reset_integral()
 		var normal:Vector3 = get_collision_point()["normal"]
@@ -113,21 +170,60 @@ func _physics_process(delta: float) -> void:
 	
 	if(Input.is_action_just_pressed("grapple")):
 		if(raydist > MAX_GRAPPLE):
-			grapple_point = null
+			grapple_point = {}
 			
 		else:
 			grapple_point = raycast
 			
-
-	if Input.is_action_pressed("grapple"):
+	if(Input.is_action_just_released("grapple")):
+		%grapple.set_pressed_no_signal(false)
+		if(grapple_point != {}):
+			$GrappleCooldown.start(MAX_COOLDOWN)
+			%grapple.disabled = true
+			can_grapple = false
+		grapple_point = {}
+	
+	if(Input.is_action_pressed("grapple") and can_grapple):
+		%grapple.set_pressed_no_signal(true)
 		_pid._reset_integral()
 		if(grapple_point):
-			var force = (grapple_point["position"] - position).normalized()
-			var distance = clamp((grapple_point["position"] - position).length(),0,MAX_GRAPPLE)
-			apply_central_impulse(GRAPPLE_FORCE*distance*force)
-			$Head/Camera3D/CamAttach/PulsePistols.look_at(grapple_point["position"])
-			$Head/Camera3D/CamAttach/PulsePistols/Armature001/Skeleton3D.set_bone_pose_position(1,lerp($Head/Camera3D/CamAttach/PulsePistols/Armature001/Skeleton3D.get_bone_pose_position(1),Vector3.UP*distance*2,delta*2))
+			if(not grapple_point["collider"].is_in_group("Player")):	
+				var force = (grapple_point["position"] - position).normalized()
+				var distance = clamp((grapple_point["position"] - position).length(),0,MAX_GRAPPLE)
+				apply_central_impulse(GRAPPLE_FORCE*distance*force)
+				$Head/Camera3D/CamAttach/PulsePistols.look_at(grapple_point["position"])
+				%rope.scale.z = lerp(%rope.scale.z,distance*2,delta*5)
+		
 	else:
-		$Head/Camera3D/CamAttach/PulsePistols/Armature001/Skeleton3D.set_bone_pose_position(1,Vector3.UP*(-1))
+		%rope.scale.z = lerp(%rope.scale.z,0.0,delta*50)
 		$Head/Camera3D/CamAttach/PulsePistols.rotation_degrees = lerp($Head/Camera3D/CamAttach/PulsePistols.rotation_degrees,Vector3.ZERO,delta*10)	
 
+
+
+func _on_grapple_cooldown_timeout():
+	can_grapple = true
+	%grapple.disabled = false
+	$GrappleCooldown.stop()
+
+@rpc("any_peer")
+func take_damage():
+	$GPUParticles3D.emitting = true
+	self.health -= SWORD_DAMAGE
+	if(health <= 0):
+		health = 50
+		$DeadCam/Respawning.start(3)
+		visible = false
+		$DeadCam.visible = true
+
+func _on_attack_cool_down_timeout():
+	$AttackCoolDown.stop()
+	can_attack = true
+	%slash.disabled = false
+	%swordimator.play("RESET")
+
+
+func _on_respawning_timeout():
+	$DeadCam.visible = false
+	$DeadCam/Respawning.stop()
+	visible = true
+	reset_player()
