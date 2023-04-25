@@ -1,6 +1,6 @@
 extends RigidBody3D
 
-var _pid := PID.new(4.0,0.5,0.0)
+var _pid := PID.new(10.0,0.5,0.0)
 
 const MAX_SPEED:float = 15.0
 const JUMP_VELOCITY:float = 4.5
@@ -9,7 +9,7 @@ const MAX_GRAPPLE:float = 50
 const MAX_COOLDOWN = 1.5
 const GRAPPLE_FORCE:float = 0.1
 const SWORD_DAMAGE:float = 25
-const ATTACK_COOLDOWN = 1.5
+const ATTACK_COOLDOWN = 1.0
 
 @onready var camera = $Head/Camera3D
 @export var grapple_point:Dictionary = {}
@@ -20,6 +20,7 @@ var current_cooldown = 0
 var can_attack:bool = true
 @export var health = 50
 @export var player_nick:String = ""
+@export var hit_from:Vector3 = Vector3.ZERO
 
 func _ready():
 	if(not is_multiplayer_authority()): return
@@ -56,7 +57,6 @@ func get_collision_point():
 
 func handle_spray(raypoint):
 	if(raypoint):
-		$soundeffects.play(0.0)
 		if(decal == null):
 			decal = Decal.new()
 			decal.texture_albedo = load("res://Pngs/wake.png")
@@ -98,21 +98,28 @@ func _process(delta):
 	
 	if(Input.is_action_just_pressed("fire") and can_attack):
 		can_attack = false
+		%grapple.set_pressed_no_signal(false)
+		if(grapple_point != {}):
+			$GrappleCooldown.start(MAX_COOLDOWN)
+			%grapple.disabled = true
+			can_grapple = false
+		grapple_point = {}
 		%grapple.set_pressed_no_signal(false)	
 		%swordimator.play("Swhing")
-		%swordimator.speed_scale = 1/ATTACK_COOLDOWN
+		%swordimator.speed_scale = 1
 		$AttackCoolDown.start(ATTACK_COOLDOWN)
 		%slash.set_pressed_no_signal(true)
 		%slash.disabled = true	
 		var hit_things = $Head/Camera3D/lethalArea.get_overlapping_bodies() + $Head/Camera3D/nonlethal.get_overlapping_bodies()
-		hit_things.erase(self)	
 		for players_hit in hit_things:
-			if(players_hit.is_in_group("Player")):
+			print(players_hit)
+			if(players_hit.is_in_group("Player") and players_hit != self):
+				players_hit.take_damage.rpc_id(players_hit.get_multiplayer_authority())
+				$AudioPlaybacks/hurts.play(0)
 				if(players_hit.health == 25):
 					var msg = preload("res://label.tscn").instantiate()
 					msg.writeText("You Killed %s" % players_hit.player_nick)
 					add_child(msg)
-				players_hit.take_damage.rpc_id(players_hit.get_multiplayer_authority())
 				
 				
 		
@@ -129,7 +136,10 @@ func _process(delta):
 		%grapple.text = "%d" % $GrappleCooldown.time_left
 		
 	if(Input.is_key_pressed(KEY_R)):
-		reset_player()
+		health = 50
+		$DeadCam/Respawning.start(3)
+		visible = false
+		$DeadCam.visible = true
 	
 		
 
@@ -171,9 +181,9 @@ func _physics_process(delta: float) -> void:
 	if(Input.is_action_just_pressed("grapple")):
 		if(raydist > MAX_GRAPPLE):
 			grapple_point = {}
-			
 		else:
 			grapple_point = raycast
+		$GrappleAudioPlayer.play(0)
 			
 	if(Input.is_action_just_released("grapple")):
 		%grapple.set_pressed_no_signal(false)
@@ -193,7 +203,6 @@ func _physics_process(delta: float) -> void:
 				apply_central_impulse(GRAPPLE_FORCE*distance*force)
 				$Head/Camera3D/CamAttach/PulsePistols.look_at(grapple_point["position"])
 				%rope.scale.z = lerp(%rope.scale.z,distance*2,delta*5)
-		
 	else:
 		%rope.scale.z = lerp(%rope.scale.z,0.0,delta*50)
 		$Head/Camera3D/CamAttach/PulsePistols.rotation_degrees = lerp($Head/Camera3D/CamAttach/PulsePistols.rotation_degrees,Vector3.ZERO,delta*10)	
@@ -227,3 +236,9 @@ func _on_respawning_timeout():
 	$DeadCam/Respawning.stop()
 	visible = true
 	reset_player()
+
+
+
+func _on_grapple_audio_player_finished():
+	if(grapple_point != {}):
+		$GrappleHitPlayer.play(0)

@@ -1,7 +1,7 @@
 [gd_resource type="VisualShader" load_steps=2 format=3 uid="uid://duxgc36tycc4r"]
 
-[sub_resource type="VisualShaderNodeFresnel" id="VisualShaderNodeFresnel_d2hb6"]
-default_input_values = [2, false, 3, 2.0]
+[sub_resource type="VisualShaderNodeColorConstant" id="VisualShaderNodeColorConstant_66166"]
+constant = Color(1, 0.611765, 0, 1)
 
 [resource]
 code = "shader_type spatial;
@@ -11,20 +11,19 @@ render_mode diffuse_toon, unshaded;
 
 
 void fragment() {
-// Fresnel:2
-	float n_in2p3 = 2.00000;
-	float n_out2p0 = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), n_in2p3);
+// ColorConstant:2
+	vec4 n_out2p0 = vec4(1.000000, 0.611765, 0.000000, 1.000000);
 
 
 // Output:0
-	EMISSION = vec3(n_out2p0);
+	EMISSION = vec3(n_out2p0.xyz);
 
 
 }
 "
-graph_offset = Vector2(-371.956, 116.934)
+graph_offset = Vector2(-83.1054, 49.5729)
 modes/diffuse = 3
 flags/unshaded = true
-nodes/fragment/2/node = SubResource("VisualShaderNodeFresnel_d2hb6")
-nodes/fragment/2/position = Vector2(-260, 280)
+nodes/fragment/2/node = SubResource("VisualShaderNodeColorConstant_66166")
+nodes/fragment/2/position = Vector2(20, 320)
 nodes/fragment/connections = PackedInt32Array(2, 0, 0, 5)

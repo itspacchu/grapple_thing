@@ -4,7 +4,9 @@ extends AudioStreamPlayer
 var velocity:float = 0.0
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	if(not is_multiplayer_authority()): return
+	if(not is_multiplayer_authority()):
+		volume_db = 0
+		queue_free()
 	velocity = parent.linear_velocity.length()
 	if(velocity < 25):
 		volume_db = lerp(volume_db,remap(velocity,0,15,-50,-20),delta*2)
